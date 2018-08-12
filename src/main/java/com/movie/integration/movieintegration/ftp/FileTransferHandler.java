@@ -39,7 +39,7 @@ public class FileTransferHandler {
         HashSet<File> localFiles = FileHandlerUtils.getLocalFiles(this.fileRegex);
         String[] remoteFiles = ftpSession.listNames("imdb");
         HashSet<String> ftpFiles = new HashSet<>();
-        if(remoteFiles.length > 0){
+        if(remoteFiles != null && remoteFiles.length > 0){
             ftpFiles = new HashSet<>(Arrays.asList(remoteFiles));
         }
         transferFiles(localFiles, ftpFiles);
