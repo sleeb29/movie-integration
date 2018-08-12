@@ -49,7 +49,7 @@ public class DocumentHandler {
     @Value("${imdb.file_extension}")
     String fileExtension;
 
-    public void updateDocumentsLocally() throws IOException {
+    public void updateLocalDocuments() throws IOException {
         HttpMethod httpMethod = HttpMethod.GET;
 
         ResponseEntity<String> httpResponse = this.restTemplate.exchange(documentHandlerURI, httpMethod, emptyRequestHttpEntity, String.class, new LinkedMultiValueMap<>());

@@ -1,5 +1,6 @@
 package com.movie.integration.movieintegration.config;
 
+import com.movie.integration.movieintegration.ftp.FileTransferHandler;
 import com.movie.integration.movieintegration.imdb.DocumentHandler;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -48,6 +49,11 @@ public class AppConfig {
     @Bean
     public DocumentHandler documentHandler(){
         return new DocumentHandler();
+    }
+
+    @Bean
+    FileTransferHandler fileTransferHandler(){
+        return new FileTransferHandler();
     }
 
     @Bean
