@@ -30,7 +30,7 @@ public class GZipHttpMessageConverter extends AbstractHttpMessageConverter<File>
 
         logger.info("started download");
 
-        String eTagFileName = httpInputMessage.getHeaders().getETag().replace("\"", "");
+        String eTagFileName = "imdb/" + httpInputMessage.getHeaders().getETag().replace("\"", "");
 
         File gzippedFile = new File(eTagFileName + ".gz");
         FileOutputStream fos = new FileOutputStream(gzippedFile);

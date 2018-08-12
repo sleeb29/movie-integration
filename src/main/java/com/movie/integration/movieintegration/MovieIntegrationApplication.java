@@ -3,6 +3,7 @@ package com.movie.integration.movieintegration;
 import com.movie.integration.movieintegration.ftp.FileTransferHandler;
 import com.movie.integration.movieintegration.imdb.DocumentHandler;
 
+import com.movie.integration.movieintegration.local.LocalFileHandler;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.context.ApplicationContext;
@@ -38,6 +39,9 @@ public class MovieIntegrationApplication {
 
         FileTransferHandler fileTransferHandler = (FileTransferHandler)context.getBean("fileTransferHandler");
         fileTransferHandler.updateRemoteDocuments();
+
+        LocalFileHandler localFileHandler = (LocalFileHandler)context.getBean("localFileHandler");
+        localFileHandler.cleanUpLocalFiles();
 
     }
 

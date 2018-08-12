@@ -44,6 +44,9 @@ public class DocumentHandler {
     @Autowired
     HttpEntity emptyRequestHttpEntity;
 
+    @Autowired
+    Set<String> oldRepositoryFiles;
+
     @Value("${imdb.file_list_uri}")
     String documentHandlerURI;
     @Value("${imdb.file_extension}")
@@ -60,9 +63,9 @@ public class DocumentHandler {
 
         Set<String> urls = getAllURLs(documentLinks);
         Set<String> validURLs = getValidURLs(urls, documentHandlerURI);
-        getFileNameToETagsToUpdate(validURLs);
+        updateFileNameToETags(validURLs);
 
-        createNewFiles(fileNameToETags);
+        createNewFiles();
     }
 
     private Set<String> getAllURLs(Elements documentLinks) {
@@ -129,7 +132,7 @@ public class DocumentHandler {
     }
 
 
-    private void getFileNameToETagsToUpdate(Set<String> urls){
+    private void updateFileNameToETags(Set<String> urls){
 
         this.fileNameToETags = new HashMap<>();
 
@@ -144,7 +147,7 @@ public class DocumentHandler {
 
     }
 
-    private void createNewFiles(HashMap<String, String> fileNameToETags){
+    private void createNewFiles(){
 
         List<HttpMessageConverter<?>> httpMessageConverters = restTemplate.getMessageConverters();
         httpMessageConverters.add(new GZipHttpMessageConverter());
@@ -160,9 +163,9 @@ public class DocumentHandler {
                             .replace("." + fileExtension, "");
                     String ETag = entry.getValue();
 
-                    File fileWithETag = new File(fileName + "_" + ETag);
-                    logger.info("file exists? " + fileName + ": " + fileWithETag.exists());
-                    return !fileWithETag.exists();
+                    Boolean fileExists = oldRepositoryFiles.contains(fileName + "_" + ETag);
+                    logger.info("file exists? " + fileName + ": " + fileExists);
+                    return !fileExists;
 
                 })
                 .forEach((Map.Entry<String, String> entry) -> {
@@ -174,7 +177,7 @@ public class DocumentHandler {
                     File file = entryResponse.getBody();
 
                     String currentFileName = file.getName();
-                    String newFileName = fileName + "_" + currentFileName;
+                    String newFileName = "imdb/" + fileName + "_" + currentFileName;
 
                     unzipNewFile(file, newFileName);
 

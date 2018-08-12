@@ -2,6 +2,7 @@ package com.movie.integration.movieintegration.config;
 
 import com.movie.integration.movieintegration.ftp.FileTransferHandler;
 import com.movie.integration.movieintegration.imdb.DocumentHandler;
+import com.movie.integration.movieintegration.local.LocalFileHandler;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,10 @@ import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 public class AppConfig {
@@ -57,6 +62,9 @@ public class AppConfig {
     }
 
     @Bean
+    LocalFileHandler localFileHandler() { return new LocalFileHandler(); }
+
+    @Bean
     public DefaultFtpSessionFactory ftpSessionFactory(){
         DefaultFtpSessionFactory ftpSessionFactory = new DefaultFtpSessionFactory();
         ftpSessionFactory.setHost(hostName);
@@ -64,6 +72,32 @@ public class AppConfig {
         ftpSessionFactory.setUsername(ftpAccountName);
         ftpSessionFactory.setPassword(ftpPassword);
         return ftpSessionFactory;
+    }
+
+    @Bean
+    public Set<String> oldRepositoryFiles(){
+
+        String repositoryFile = "tag_repository/tag_file";
+        File oldRepositoryFile = new File(repositoryFile);
+        BufferedReader br = null;
+
+        Set<String> oldFiles = new HashSet<>();
+
+        try {
+            br = new BufferedReader(new FileReader(oldRepositoryFile));
+            String oldFile;
+            while ((oldFile = br.readLine()) != null) {
+                oldFiles.add(oldFile);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return oldFiles;
+
     }
 
 }

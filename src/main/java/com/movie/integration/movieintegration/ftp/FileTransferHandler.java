@@ -1,5 +1,6 @@
 package com.movie.integration.movieintegration.ftp;
 
+import com.movie.integration.movieintegration.util.FileHandlerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
@@ -35,47 +36,43 @@ public class FileTransferHandler {
 
     public void updateRemoteDocuments() throws IOException {
 
-        File[] localFiles = getLocalFiles();
-        HashSet<String> ftpFiles = new HashSet<>(Arrays.asList(ftpSession.listNames(".")));
+        HashSet<File> localFiles = FileHandlerUtils.getLocalFiles(this.fileRegex);
+        String[] remoteFiles = ftpSession.listNames("imdb");
+        HashSet<String> ftpFiles = new HashSet<>();
+        if(remoteFiles.length > 0){
+            ftpFiles = new HashSet<>(Arrays.asList(remoteFiles));
+        }
         transferFiles(localFiles, ftpFiles);
 
     }
 
-    private File[] getLocalFiles(){
-
-        Pattern pattern = Pattern.compile(this.fileRegex);
-        File localRootDir = new File(".");
-        File[] localFiles = localRootDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return pattern.matcher(name).matches();
-            }
-        });
-
-        return localFiles;
-
-    }
-
-    public void transferFiles(File[] localFiles, HashSet<String> ftpFiles) throws IOException {
+    public void transferFiles(HashSet<File> localFiles, HashSet<String> ftpFiles) {
 
         Pattern partialFilePattern = Pattern.compile(partialFileRegex);
 
-        for(int i = 0; i < localFiles.length; i++){
-            File file = localFiles[i];
-
-            if(ftpFiles.contains(file.getName())){
-                logger.info("ftp site already contains:" + file.getName());
-                continue;
+        localFiles.parallelStream().forEach(localFile -> {
+            if(ftpFiles.contains(localFile.getName())){
+                logger.info("ftp site already contains:" + localFile.getName());
+                return;
             }
 
-            Matcher matchesExistingStaleRemoteFile = partialFilePattern.matcher(file.getName());
-            Boolean foundExistingStaleRemoteFile = matchesExistingStaleRemoteFile.find();
-            if(foundExistingStaleRemoteFile){
-                String matchingString = matchesExistingStaleRemoteFile.group(1);
-                deleteFileFromFtp(ftpFiles, matchingString);
+            String matchingString = FileHandlerUtils.getMatchingString(partialFilePattern, localFile.getName());
+
+            if(matchingString != null){
+                try {
+                    deleteFileFromFtp(ftpFiles, matchingString);
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
             }
-            ftpSession.write(new FileInputStream(file), file.getPath());
-        }
+
+            try {
+                ftpSession.write(new FileInputStream(localFile), localFile.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
 
     }
 
