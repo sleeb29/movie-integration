@@ -34,14 +34,44 @@ public class MovieIntegrationApplication {
         ApplicationContext context
                 = new AnnotationConfigApplicationContext(MovieIntegrationApplication.class);
 
-        DocumentHandler documentHandler = (DocumentHandler)context.getBean("documentHandler");
-        documentHandler.updateLocalDocuments();
+        HashMap<String, String> commandLineSwitches = (HashMap<String, String>)context.getBean("commandLineSwitches");
+        Map<String, Boolean> routineToRunRoutineMap = parseArgumentsToMap(commandLineSwitches.values(), args);
 
-        FileTransferHandler fileTransferHandler = (FileTransferHandler)context.getBean("fileTransferHandler");
-        fileTransferHandler.updateRemoteDocuments();
+        String documentHandlerSwitch = commandLineSwitches.get("documentHandler");
+        if(!routineToRunRoutineMap.containsKey(documentHandlerSwitch) || routineToRunRoutineMap.get(documentHandlerSwitch)){
+            DocumentHandler documentHandler = (DocumentHandler)context.getBean("documentHandler");
+            documentHandler.updateLocalDocuments();
+        }
 
-        LocalFileHandler localFileHandler = (LocalFileHandler)context.getBean("localFileHandler");
-        localFileHandler.cleanUpLocalFiles();
+        String fileTransferHandlerSwitch = commandLineSwitches.get("fileTransferHandler");
+        if(!routineToRunRoutineMap.containsKey(fileTransferHandlerSwitch) || routineToRunRoutineMap.get(fileTransferHandlerSwitch)){
+            FileTransferHandler fileTransferHandler = (FileTransferHandler)context.getBean("fileTransferHandler");
+            fileTransferHandler.updateRemoteDocuments();
+        }
+
+        String localFileHandlerSwitch = commandLineSwitches.get("localFileHandler");
+        if(!routineToRunRoutineMap.containsKey(localFileHandlerSwitch) || routineToRunRoutineMap.get(localFileHandlerSwitch)){
+            LocalFileHandler localFileHandler = (LocalFileHandler)context.getBean("localFileHandler");
+            localFileHandler.cleanUpLocalFiles();
+        }
+
+    }
+
+    private static Map<String, Boolean> parseArgumentsToMap(Collection<String> commandLineSwitches, String[] args){
+        Map<String, Boolean> routineToRunRoutineMap = new HashMap<>();
+
+        for(int i = 0; i < args.length; i++){
+
+            String arg = args[i];
+
+            if(commandLineSwitches.contains(arg)){
+                Boolean argValue = Boolean.parseBoolean(args[i + 1]);
+                routineToRunRoutineMap.put(arg, argValue);
+            }
+
+        }
+
+        return routineToRunRoutineMap;
 
     }
 

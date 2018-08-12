@@ -17,7 +17,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Configuration
@@ -31,6 +33,13 @@ public class AppConfig {
     String ftpAccountName;
     @Value("${ftp_password}")
     String ftpPassword;
+
+    @Value("${command_line.download_files_arg}")
+    String downloadFilesArg;
+    @Value("${command_line.transfer_files_arg}")
+    String transferFilesArg;
+    @Value("${command_line.cleanup_local_files_arg}")
+    String cleanupLocalFilesArg;
 
     @Bean
     public RestTemplate restTemplate(){
@@ -97,6 +106,18 @@ public class AppConfig {
         }
 
         return oldFiles;
+
+    }
+
+    @Bean
+    public Map<String, String> commandLineSwitches(){
+
+        HashMap<String, String> commandLineSwitches = new HashMap();
+        commandLineSwitches.put("documentHandler", downloadFilesArg);
+        commandLineSwitches.put("fileTransferHandler", transferFilesArg);
+        commandLineSwitches.put("localFileHandler", cleanupLocalFilesArg);
+
+        return commandLineSwitches;
 
     }
 
