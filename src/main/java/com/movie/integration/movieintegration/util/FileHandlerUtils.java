@@ -1,12 +1,7 @@
 package com.movie.integration.movieintegration.util;
 
-import com.movie.integration.movieintegration.ftp.FileTransferHandler;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;

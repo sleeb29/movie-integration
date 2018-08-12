@@ -11,7 +11,6 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileTransferHandler {
